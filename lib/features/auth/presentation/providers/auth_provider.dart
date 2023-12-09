@@ -26,7 +26,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  void registerUser(String email, String password, String fullname) async {}
+  Future<void> registerUser(
+      String email, String password, String fullname) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      final user = await authRepository.register(email, password, fullname);
+      _setLoggedUser(user);
+    } on CustomError catch (e) {
+      notRegistered(e.message);
+    } catch (e) {
+      notRegistered('Unknown error');
+    }
+  }
 
   void checkAuthStatus() {}
 
@@ -37,11 +48,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
   }
 
+  Future<void> notRegistered(String errorMessage) async {
+    state = state.copyWith(
+      authStatus: AuthStatus.notAuthenticated,
+      user: null,
+      errorMessage: errorMessage,
+    );
+  }
+
   Future<void> logOut(String? errorMessage) async {
     state = state.copyWith(
-        authStatus: AuthStatus.notAuthenticated,
-        user: null,
-        errorMessage: errorMessage);
+      authStatus: AuthStatus.notAuthenticated,
+      user: null,
+      errorMessage: errorMessage,
+    );
   }
 }
 
