@@ -88,20 +88,23 @@ class _LoginForm extends ConsumerWidget {
             label: 'Password',
             obscureText: true,
             onChanged: ref.read(loginFormProvider.notifier).onPasswordChange,
+            onFieldSubmitted: (_) =>
+                ref.read(loginFormProvider.notifier).onFormSubmit(),
             errorMessage:
                 loginForm.isFormPosted ? loginForm.password.errorMessage : null,
           ),
           const SizedBox(height: 30),
           SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: CustomFilledButton(
-                text: 'Log in',
-                buttonColor: Colors.black,
-                onPressed: loginForm.isPosting
-                    ? null
-                    : ref.read(loginFormProvider.notifier).onFormSubmit,
-              )),
+            width: double.infinity,
+            height: 60,
+            child: CustomFilledButton(
+              text: 'Log in',
+              buttonColor: Colors.black,
+              onPressed: loginForm.isPosting
+                  ? null
+                  : ref.read(loginFormProvider.notifier).onFormSubmit,
+            ),
+          ),
           const Spacer(flex: 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
