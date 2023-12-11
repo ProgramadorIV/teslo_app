@@ -33,5 +33,27 @@ class KeyValueStorageServiceImpl extends KeyValueStorageService {
   }
 
   @override
-  Future<void> setKeyValue<T>(String key, T value) async {}
+  Future<void> setKeyValue<T>(String key, T value) async {
+    final prefs = await getSharedPreferences();
+
+    switch (T) {
+      case int:
+        prefs.setInt(key, value as int);
+        break;
+      case String:
+        prefs.setString(key, value as String);
+        break;
+      case bool:
+        prefs.setBool(key, value as bool);
+        break;
+      case double:
+        prefs.setDouble(key, value as double);
+        break;
+      case List<String>:
+        prefs.setStringList(key, value as List<String>);
+        break;
+      default:
+        throw UnimplementedError('Not implemented for type: ${T.runtimeType}');
+    }
+  }
 }
