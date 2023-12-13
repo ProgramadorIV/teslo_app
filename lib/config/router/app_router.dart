@@ -16,6 +16,12 @@ final goRouterProvider = Provider((ref) {
     routes: [
       ///* Auth Routes
       GoRoute(
+        path: '/product/:id',
+        builder: (context, state) => ProductScreen(
+          productId: state.params['id'] ?? 'no-id',
+        ),
+      ),
+      GoRoute(
         path: '/splash',
         builder: (context, state) => const CheckAuthStatusScreen(),
       ),
