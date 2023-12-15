@@ -35,7 +35,7 @@ class _ImageSlider extends StatelessWidget {
       return ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Image.asset(
-          '/assets/images/no-image.jpg',
+          'assets/images/no-image.jpg',
           fit: BoxFit.cover,
           height: 250,
         ),

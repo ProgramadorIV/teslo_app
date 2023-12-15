@@ -12,30 +12,49 @@ class ProductScreen extends ConsumerWidget {
 
   final String productId;
 
+  void showSnackbar(BuildContext context) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      productId == 'new'
+          ? const SnackBar(content: Text('Created succesfully!'))
+          : const SnackBar(content: Text('Updated succesfully!')),
+    );
+  }
+
   @override
   Widget build(BuildContext context, ref) {
     final productState = ref.watch(productProvider(productId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Editar/Ver producto'),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.camera_alt_outlined),
-          )
-        ],
-      ),
-      body: productState.isLoading
-          ? const FullScreenLoader()
-          : _ProductView(product: productState.product!),
-      floatingActionButton: FloatingActionButton(
-        onPressed: productState.product == null
-            ? () {}
-            : ref
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('${productId == 'new' ? 'New' : 'Edit'} product'),
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.camera_alt_outlined),
+            )
+          ],
+        ),
+        body: productState.isLoading
+            ? const FullScreenLoader()
+            : _ProductView(product: productState.product!),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            if (productState.product == null) return;
+
+            ref
                 .read(productFormProvider(productState.product!).notifier)
-                .onFormSubmit,
-        child: const Icon(Icons.save_as_outlined),
+                .onFormSubmit()
+                .then((value) {
+              if (!value) return;
+              showSnackbar(context);
+            });
+          },
+          child: const Icon(Icons.save_as_outlined),
+        ),
       ),
     );
   }
@@ -61,7 +80,12 @@ class _ProductView extends ConsumerWidget {
         ),
         const SizedBox(height: 10),
         Center(
-            child: Text(productForm.title.value, style: textStyles.titleSmall)),
+          child: Text(
+            productForm.title.value,
+            style: textStyles.titleSmall,
+            textAlign: TextAlign.center,
+          ),
+        ),
         const SizedBox(height: 10),
         _ProductInformation(product: product),
       ],
@@ -181,6 +205,7 @@ class _SizeSelector extends ConsumerWidget {
       }).toList(),
       selected: Set.from(selectedSizes),
       onSelectionChanged: (newSelection) {
+        FocusScope.of(context).unfocus();
         onSizesChangeCallBack(List.from(newSelection));
       },
       multiSelectionEnabled: true,
@@ -218,6 +243,7 @@ class _GenderSelector extends StatelessWidget {
         }).toList(),
         selected: {selectedGender},
         onSelectionChanged: (newSelection) {
+          FocusScope.of(context).unfocus();
           onGenderChangeCallback(newSelection.first);
         },
       ),
@@ -237,9 +263,12 @@ class _ImageGallery extends StatelessWidget {
       children: images.isEmpty
           ? [
               ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  child: Image.asset('assets/images/no-image.jpg',
-                      fit: BoxFit.cover))
+                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                child: Image.asset(
+                  'assets/images/no-image.jpg',
+                  fit: BoxFit.cover,
+                ),
+              )
             ]
           : images.map((e) {
               return ClipRRect(
