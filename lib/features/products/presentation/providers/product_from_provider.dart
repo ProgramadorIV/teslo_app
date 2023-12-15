@@ -1,14 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
+
 import 'package:teslo_shop/config/constants/environment.dart';
 import 'package:teslo_shop/features/products/domain/domain.dart';
-import 'package:teslo_shop/features/products/presentation/providers/products_repository_provider.dart';
+import 'package:teslo_shop/features/products/presentation/providers/providers.dart';
 import 'package:teslo_shop/features/shared/infrastructure/inputs/inputs.dart';
 
 final productFormProvider = StateNotifierProvider.autoDispose
     .family<ProductFormNotifier, ProductFormState, Product>((ref, product) {
   final createUpdateProduct =
-      ref.watch(productsRepositoryProvider).createUpdateProduct;
+      ref.watch(productsProvider.notifier).createUpdateProduct;
 
   return ProductFormNotifier(
     product: product,
@@ -35,7 +36,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
           ),
         );
 
-  final Future<void> Function(Map<String, dynamic> productRaw)?
+  final Future<bool> Function(Map<String, dynamic> productRaw)?
       onSubmitCallback;
 
   void onTitleChange(String value) {
@@ -120,7 +121,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     if (onSubmitCallback == null) return false;
 
     final productRaw = {
-      'id': state.id,
+      'id': state.id == 'new' ? null : state.id,
       'title': state.title.value,
       'price': state.price.value,
       'slug': state.slug.value,
@@ -135,8 +136,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     };
 
     try {
-      await onSubmitCallback!(productRaw);
-      return true;
+      return await onSubmitCallback!(productRaw);
     } catch (_) {
       return false;
     }
