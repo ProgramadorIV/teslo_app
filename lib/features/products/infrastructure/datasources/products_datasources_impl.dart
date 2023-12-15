@@ -18,9 +18,26 @@ class ProductsDatasourceImpl extends ProductsDatasource {
         ));
 
   @override
-  Future<Product> createUpdateProduct(Map<String, dynamic> product) {
-    // TODO: implement createUpdateProduct
-    throw UnimplementedError();
+  Future<Product> createUpdateProduct(Map<String, dynamic> productRaw) async {
+    try {
+      final String? productId = productRaw['id'];
+      final String method = productId == null ? 'POST' : 'PATCH';
+      final String url =
+          productId == null ? '/products' : '/products/$productId';
+
+      productRaw.remove('id');
+
+      final response = await dio.request(url,
+          data: productRaw,
+          options: Options(
+            method: method,
+          ));
+
+      final product = ProductMapper.jsonToProduct(response.data);
+      return product;
+    } catch (_) {
+      throw Exception();
+    }
   }
 
   @override
