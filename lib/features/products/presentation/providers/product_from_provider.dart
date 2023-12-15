@@ -39,6 +39,10 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
   final Future<bool> Function(Map<String, dynamic> productRaw)?
       onSubmitCallback;
 
+  void onImagesChange(String imgPath) {
+    state = state.copyWith(images: [...state.images, imgPath]);
+  }
+
   void onTitleChange(String value) {
     state = state.copyWith(
       title: Title.dirty(value),
